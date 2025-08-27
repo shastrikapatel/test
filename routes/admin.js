@@ -2,23 +2,36 @@ const express = require("express");
 const router = express.Router();
 const Item = require("../models/Item");
 
-// Admin panel view
+// Admin page - show all items
 router.get("/", async (req, res) => {
-    const items = await Item.find();
-    res.render("admin", { items });
+    try {
+        const items = await Item.find();
+        res.render("admin", { items });
+    } catch (error) {
+        res.status(500).send("Error loading admin view");
+    }
 });
 
-// Add item
+// Add new item
 router.post("/add", async (req, res) => {
     const { name, price } = req.body;
-    await Item.create({ name, price });
-    res.redirect("/admin");
+    try {
+        const newItem = new Item({ name, price });
+        await newItem.save();
+        res.redirect("/admin");
+    } catch (error) {
+        res.status(500).send("Error adding item");
+    }
 });
 
 // Delete item
 router.post("/delete/:id", async (req, res) => {
-    await Item.findByIdAndDelete(req.params.id);
-    res.redirect("/admin");
+    try {
+        await Item.findByIdAndDelete(req.params.id);
+        res.redirect("/admin");
+    } catch (error) {
+        res.status(500).send("Error deleting item");
+    }
 });
 
 module.exports = router;

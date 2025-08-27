@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const path = require("path");
+const Item = require("../models/Item");
 
 const app = express();
 
@@ -14,8 +15,8 @@ app.set("views", path.join(__dirname, "../views"));
 mongoose.connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true
-}).then(() => console.log("MongoDB Connected"))
-.catch(err => console.error("MongoDB Error:", err));
+}).then(() => console.log("✅ MongoDB Connected"))
+.catch(err => console.error("❌ MongoDB Error:", err));
 
 // Routes
 const adminRoutes = require("../routes/admin");
@@ -24,16 +25,15 @@ const customerRoutes = require("../routes/customer");
 app.use("/admin", adminRoutes);
 app.use("/customer", customerRoutes);
 
-// ✅ Show customer view with items on root
+// ✅ Root route - Customer View with fallback
 app.get("/", async (req, res) => {
     try {
-        const Item = require("../models/Item");
         const items = await Item.find();
         res.render("customer", { items });
     } catch (error) {
-        console.error(error);
-        res.status(500).send("Error loading customer view");
+        console.error("❌ Error fetching items:", error);
+        res.render("customer", { items: [{ name: "Sample Item", price: 100 }] });
     }
 });
 
-module.exports = app;
+module.exports = app; // No app.listen() for Vercel
