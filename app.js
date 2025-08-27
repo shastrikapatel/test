@@ -10,7 +10,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// Connect MongoDB (Change to your Atlas URI)
+// Connect MongoDB
 mongoose.connect(process.env.MONGO_URL || "mongodb://127.0.0.1:27017/priceListDB", {
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -23,5 +23,11 @@ const customerRoutes = require("./routes/customer");
 app.use("/admin", adminRoutes);
 app.use("/", customerRoutes);
 
-// Export app for Vercel
+// For local testing
+if (process.env.NODE_ENV !== "production") {
+    const PORT = 3000;
+    app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+}
+
+// Export for Vercel
 module.exports = app;
