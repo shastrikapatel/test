@@ -8,7 +8,7 @@ const app = express();
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "../views")); // Important for Vercel
+app.set("views", path.join(__dirname, "../views"));
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URL, {
@@ -23,9 +23,9 @@ const customerRoutes = require("../routes/customer");
 app.use("/admin", adminRoutes);
 app.use("/customer", customerRoutes);
 
-// Default route
+// ✅ Show customer view on root
 app.get("/", (req, res) => {
-    res.send("Welcome to Price List App");
+    res.render("customer");
 });
 
-module.exports = app;
+module.exports = app; // No app.listen() for Vercel
