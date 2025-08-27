@@ -14,7 +14,8 @@ app.set("views", path.join(__dirname, "../views"));
 mongoose.connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true
-});
+}).then(() => console.log("MongoDB Connected"))
+.catch(err => console.error("MongoDB Error:", err));
 
 // Routes
 const adminRoutes = require("../routes/admin");

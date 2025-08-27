@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Item = require("../models/Item");
 
-// Admin panel view
+// Admin panel - show items
 router.get("/", async (req, res) => {
     const items = await Item.find();
     res.render("admin", { items });
@@ -11,7 +11,8 @@ router.get("/", async (req, res) => {
 // Add item
 router.post("/add", async (req, res) => {
     const { name, price } = req.body;
-    await Item.create({ name, price });
+    const newItem = new Item({ name, price });
+    await newItem.save();
     res.redirect("/admin");
 });
 
