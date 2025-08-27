@@ -11,7 +11,7 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 // Connect MongoDB
-mongoose.connect(process.env.MONGO_URL || "mongodb://127.0.0.1:27017/priceListDB", {
+mongoose.connect(process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/priceListDB", {
     useNewUrlParser: true,
     useUnifiedTopology: true
 });
