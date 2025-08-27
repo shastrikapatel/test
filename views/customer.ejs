@@ -1,19 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Customer View</title>
+    <title>Price List</title>
 </head>
 <body>
-    <h1>Price List</h1>
+    <h1>Customer Price List</h1>
     <ul>
-        <% if (items.length === 0) { %>
-            <li>No items available</li>
-        <% } else { %>
-            <% items.forEach(item => { %>
-                <li><%= item.name %> - ₹<%= item.price %></li>
-            <% }) %>
-        <% } %>
+        <% items.forEach(item => { %>
+            <li><%= item.name %> - ₹<%= item.price %></li>
+        <% }) %>
     </ul>
-    <a href="/admin">Go to Admin</a>
 </body>
 </html>
