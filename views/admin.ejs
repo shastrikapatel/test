@@ -4,12 +4,13 @@
     <title>Admin Panel</title>
 </head>
 <body>
-    <h1>Manage Items</h1>
+    <h1>Admin Panel</h1>
     <form action="/admin/add" method="POST">
         <input type="text" name="name" placeholder="Item Name" required>
         <input type="number" name="price" placeholder="Price" required>
-        <button type="submit">Add Item</button>
+        <button type="submit">Add</button>
     </form>
+    <h2>Item List</h2>
     <ul>
         <% items.forEach(item => { %>
             <li>
@@ -20,6 +21,5 @@
             </li>
         <% }) %>
     </ul>
-    <a href="/customer">View Customer Page</a>
 </body>
 </html>
