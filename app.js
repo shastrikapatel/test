@@ -15,7 +15,7 @@ let isConnected = false;
 
 async function connectDB() {
     if (isConnected) return;
-    await mongoose.connect(process.env.MONGODB_URI, {
+    await mongoose.connect(process.env.MONGO_URL, {
         useNewUrlParser: true,
         useUnifiedTopology: true
     });
