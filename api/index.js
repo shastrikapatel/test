@@ -8,13 +8,14 @@ const app = express();
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "../views")); // Important for Vercel
+app.set("views", path.join(__dirname, "../views"));
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true
-});
+}).then(() => console.log("MongoDB Connected"))
+.catch(err => console.error("MongoDB Error:", err));
 
 // Routes
 const adminRoutes = require("../routes/admin");
@@ -23,9 +24,16 @@ const customerRoutes = require("../routes/customer");
 app.use("/admin", adminRoutes);
 app.use("/customer", customerRoutes);
 
-// Default route
-app.get("/", (req, res) => {
-    res.send("Welcome to Price List App");
+// ✅ Show customer view with items on root
+app.get("/", async (req, res) => {
+    try {
+        const Item = require("../models/Item");
+        const items = await Item.find();
+        res.render("customer", { items });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error loading customer view");
+    }
 });
 
 module.exports = app;
