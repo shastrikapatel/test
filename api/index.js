@@ -36,6 +36,7 @@ const customerRoutes = require("../routes/customer");
 
 app.use("/admin", adminRoutes);
 app.use("/", customerRoutes);
+app.use("/customer", customerRouter);
 
 // Debug route
 app.get("/debug", async (req, res) => {
