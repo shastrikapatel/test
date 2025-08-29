@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin - Order Summary</title>
+    <style>
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #007BFF; color: #fff; }
+        .status { padding: 5px 10px; border-radius: 5px; color: #fff; font-weight: bold; }
+        .Pending { background: #ffc107; }
+        .Confirmed { background: #28a745; }
+        .Cancelled { background: #dc3545; }
+    </style>
+</head>
+<body>
+    <h2>All Orders</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Customer</th>
+                <th>Phone</th>
+                <th>Items</th>
+                <th>Total Price</th>
+                <th>Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% orders.forEach((order, index) => { %>
+                <tr>
+                    <td><%= index + 1 %></td>
+                    <td><%= order.customerName %></td>
+                    <td><%= order.customerPhone %></td>
+                    <td>
+                        <ul>
+                            <% order.items.forEach(item => { %>
+                                <li><%= item.name %> x <%= item.quantity %> - ₹<%= item.price %></li>
+                            <% }) %>
+                        </ul>
+                    </td>
+                    <td>₹<%= order.totalPrice %></td>
+                    <td><%= order.createdAt.toLocaleString() %></td>
+                    <td><span class="status <%= order.status %>"><%= order.status %></span></td>
+                </tr>
+            <% }) %>
+        </tbody>
+    </table>
+</body>
+</html>
