@@ -1,18 +1,12 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
-const orderSchema = new mongoose.Schema({
-    customerName: { type: String, required: true },
-    customerPhone: { type: String, required: true },
-    items: [
-        {
-            name: String,
-            price: Number,
-            quantity: Number
-        }
-    ],
-    totalPrice: Number,
-    status: { type: String, default: "Pending" },
-    createdAt: { type: Date, default: Date.now }
+const OrderSchema = new mongoose.Schema({
+  customerName: String,
+  customerPhone: String,
+  items: [{ name: String, price: Number, quantity: Number }],
+  totalPrice: Number,
+  status: { type: String, default: "Pending" },
+  createdAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.models.Order || mongoose.model("Order", orderSchema);
+export default mongoose.models.Order || mongoose.model("Order", OrderSchema);
