@@ -37,6 +37,7 @@ const orderRoutes = require("./routes/order");
 app.use("/admin", adminRoutes);
 app.use("/", customerRoutes);
 app.use("/order", orderRoutes);
+app.use(express.json());
 
 // Local testing
 if (process.env.NODE_ENV !== "production") {
