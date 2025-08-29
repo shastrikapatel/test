@@ -1,38 +1,33 @@
 const express = require("express");
 const router = express.Router();
 const Item = require("../models/Item");
+const Order = require("../models/order");
 
 // Admin dashboard
 router.get("/", async (req, res) => {
     const items = await Item.find();
-    res.render("admin", { items });
+    const orders = await Order.find().sort({ createdAt: -1 });
+    res.render("admin", { items, orders });
 });
 
-// Add new item
-router.post("/add", async (req, res) => {
-    const { name, price, quantity } = req.body;
-    await Item.create({ name, price, quantity });
-    res.redirect("/admin");
-});
+// ... existing item routes ...
 
-// Update item
-router.post("/update/:id", async (req, res) => {
+// Update order status
+router.post("/order/update-status/:id", async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, price, quantity } = req.body;
+        const { status } = req.body;
+        const order = await Order.findByIdAndUpdate(id, { status }, { new: true });
 
-        await Item.findByIdAndUpdate(id, { name, price, quantity });
+        // Send WhatsApp message to customer
+        const message = `Order Status Update\n\nOrder #${order._id}\nStatus: ${status}\n\nThank you for your business!`;
+        console.log('Status update message:', message);
+
         res.redirect("/admin");
     } catch (error) {
-        console.error(error);
-        res.status(500).send("Error updating item");
+        console.error('Status update error:', error);
+        res.status(500).send("Error updating order status");
     }
-});
-
-// Delete item
-router.post("/delete/:id", async (req, res) => {
-    await Item.findByIdAndDelete(req.params.id);
-    res.redirect("/admin");
 });
 
 module.exports = router;
