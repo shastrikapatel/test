@@ -1,20 +1,26 @@
 const express = require("express");
 const router = express.Router();
+const connectToDatabase = require("../db");
 const Item = require("../models/Item");
 const Order = require("../models/order");
 
-// Show all items
+// Middleware to connect DB
+router.use(async (req, res, next) => {
+    await connectToDatabase();
+    next();
+});
+
+// Routes
 router.get("/", async (req, res) => {
     const items = await Item.find();
     res.render("customer", { items });
 });
 
-// Handle order submission
 router.post("/order", async (req, res) => {
     try {
         const { customerName, customerPhone, items } = req.body;
-        let parsedItems = Array.isArray(items) ? items : [items];
-        let totalPrice = parsedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        const parsedItems = Array.isArray(items) ? items : [items];
+        const totalPrice = parsedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
         await Order.create({
             customerName,
