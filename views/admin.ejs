@@ -248,38 +248,67 @@
 
 <body>
 
-    <h2>Admin Panel</h2>
+    <!-- Login Form -->
+    <div id="loginForm">
+        <h1>Admin Login</h1>
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button onclick="login()">Login</button>
+        <p id="error"></p>
+    </div>
 
-<h3>Add Item</h3>
-<form method="POST" action="/admin/add">
-    <input type="text" name="name" placeholder="Item Name" required>
-    <input type="number" name="price" placeholder="Price" required>
-    <button type="submit">Add Item</button>
-</form>
+    <!-- Admin Panel -->
+    <div id="adminPanel">
+        <div id="popupMessage" class="popup">Message</div>
+        <h1>Admin Panel</h1>
+        <a href="#" class="logout" onclick="logout()">Logout</a>
 
-<h3>Items</h3>
-<ul>
-    <% items.forEach(item => { %>
-        <li><%= item.name %> - ₹<%= item.price %></li>
-    <% }) %>
-</ul>
+        <h3>Add Item</h3>
+        <form action="/admin/add" method="POST" onsubmit="showPopup('Item added!', 'success')">
+            <input type="text" name="name" placeholder="Item Name" required>
+            <input type="number" name="price" placeholder="Price" required>
+            <button type="submit">Add Item</button>
+        </form>
 
-<h3>Orders</h3>
-<table border="1">
-    <tr><th>Name</th><th>Phone</th><th>Items</th></tr>
-    <% orders.forEach(order => { %>
-        <tr>
-            <td><%= order.customerName %></td>
-            <td><%= order.phone %></td>
-            <td>
-                <% order.items.forEach(i => { %>
-                    <%= i.name %> (₹<%= i.price %>)<br>
+
+        <h3>Item List</h3>
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Action</th>
+            </tr>
+            <% items.forEach(item=> { %>
+                <tr>
+                    <form action="/admin/update/<%= item._id %>" method="POST"
+                        onsubmit="showPopup('Item updated!', 'success')">
+                        <td><input type="text" name="name" value="<%= item.name %>"></td>
+                        <td><input type="number" name="price" value="<%= item.price %>"></td>
+                        <td>
+                            <button type="submit">Update</button>
+                    </form>
+                    <form action="/admin/delete/<%= item._id %>" method="POST" style="display:inline;"
+                        onsubmit="return confirmDelete(event, this)">
+                        <button type="submit">Delete</button>
+                    </form>
+
+
+
+                    </td>
+                </tr>
                 <% }) %>
-            </td>
-        </tr>
-    <% }) %>
-</table>
+        </table>
+        <div id="confirmBox" class="confirm-box">
+            <div class="confirm-content">
+                <p id="confirmMessage">Are you sure?</p>
+                <div class="confirm-actions">
+                    <button id="confirmYes">Yes</button>
+                    <button id="confirmNo">No</button>
+                </div>
+            </div>
+        </div>
 
+    </div>
 
     <script>
         const ADMIN_USER = "admin";
