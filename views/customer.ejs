@@ -360,7 +360,7 @@ async function sendWhatsApp() {
 
         if(response.ok){
             showMessage('Order saved! Sending WhatsApp...');
-            const adminNumber = '917600361112'; // your admin number
+            const adminNumber = '91851193510'; // your admin number
             let message = `Order from ${customerNumber}:%0A`;
             items.forEach(item => {
                 message += `${item.name} - ${item.quantity} x ₹${item.price} = ₹${item.quantity * item.price}%0A`;
