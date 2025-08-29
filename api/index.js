@@ -1,57 +1,55 @@
-require("dotenv").config();
-const express = require("express");
-const mongoose = require("mongoose");
-const bodyParser = require("body-parser");
-const path = require("path");
+import express from "express";
+import mongoose from "mongoose";
+import bodyParser from "body-parser";
+import Item from "../../models/Item";
+import Order from "../../models/Order";
 
 const app = express();
-
-// Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
-app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "../views"));
+app.use(bodyParser.json());
 
-// ✅ Optimize MongoDB connection for Vercel
-if (!global._mongooseConnection) {
-    global._mongooseConnection = mongoose.connect(process.env.MONGO_URL, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
+// MongoDB connection caching (for serverless)
+let cached = global.mongoose;
+if (!cached) cached = global.mongoose = { conn: null, promise: null };
+
+async function connectToDatabase() {
+  if (cached.conn) return cached.conn;
+
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(process.env.MONGODB_URI, { 
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    }).then(m => m);
+  }
+  cached.conn = await cached.promise;
+  return cached.conn;
+}
+
+// GET all items
+app.get("/api/items", async (req, res) => {
+  await connectToDatabase();
+  const items = await Item.find();
+  res.json(items);
+});
+
+// POST order
+app.post("/api/order", async (req, res) => {
+  try {
+    await connectToDatabase();
+    const { customerName, customerPhone, items } = req.body;
+    const totalPrice = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+    const order = await Order.create({
+      customerName,
+      customerPhone,
+      items,
+      totalPrice
     });
-}
-
-// Wait for DB connection before processing requests
-app.use(async (req, res, next) => {
-    try {
-        await global._mongooseConnection;
-        next();
-    } catch (err) {
-        console.error("MongoDB error:", err.message);
-        res.status(500).send("MongoDB connection failed.");
-    }
+    res.status(200).json({ message: "Order placed successfully", order });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to place order" });
+  }
 });
 
-// Routes
-const adminRoutes = require("../routes/admin");
-const customerRoutes = require("../routes/customer");
-
-app.use("/admin", adminRoutes);
-app.use("/", customerRoutes);
-app.use("/customer", customerRouter);
-
-// Debug route
-app.get("/debug", async (req, res) => {
-    res.json({ status: "ok", mongo: !!process.env.MONGO_URL });
-});
-
-// Default route
-app.get("/", (req, res) => {
-    res.send("Welcome to Price List App");
-});
-
-// Local testing
-if (require.main === module) {
-    const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
-}
-
-module.exports = app;
+export default app;
