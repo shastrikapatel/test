@@ -1,32 +1,28 @@
 const express = require("express");
 const router = express.Router();
 const Item = require("../models/Item");
+const Order = require("../models/order"); // lowercase o
+
 
 // Admin dashboard
 router.get("/", async (req, res) => {
     const items = await Item.find();
-    res.render("admin", { items });
+    const orders = await Order.find().sort({ date: -1 });
+    res.render("admin", { items, orders });
 });
 
 // Add new item
 router.post("/add", async (req, res) => {
-    const { name, price, quantity } = req.body;
-    await Item.create({ name, price, quantity });
+    const { name, price } = req.body;
+    await Item.create({ name, price });
     res.redirect("/admin");
 });
 
 // Update item
 router.post("/update/:id", async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { name, price, quantity } = req.body;
-
-        await Item.findByIdAndUpdate(id, { name, price, quantity });
-        res.redirect("/admin");
-    } catch (error) {
-        console.error(error);
-        res.status(500).send("Error updating item");
-    }
+    const { name, price } = req.body;
+    await Item.findByIdAndUpdate(req.params.id, { name, price });
+    res.redirect("/admin");
 });
 
 // Delete item

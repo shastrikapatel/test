@@ -332,22 +332,52 @@ function closePopup() {
 }
 
 // Send to WhatsApp after confirmation
-function sendWhatsApp() {
-    let name = document.getElementById('customerName').value.trim();
-    let message = `Order from ${name}:%0A`;
+async function sendWhatsApp() {
+    let customerNumber = document.getElementById('customerName').value.trim();
+    let items = [];
     document.querySelectorAll('#itemList tr').forEach(row => {
         let qty = parseInt(row.querySelector('.qty').textContent);
         if (qty > 0) {
-            let itemName = row.cells[0].textContent;
-            let price = row.querySelector('.price').textContent.replace('₹', '');
-            message += `${itemName} - ${qty} x ₹${price} = ₹${qty * price}%0A`;
+            let name = row.cells[0].textContent;
+            let price = parseInt(row.querySelector('.price').getAttribute('data-price'));
+            items.push({ name, price, quantity: qty });
         }
     });
-    message += `Grand Total: ₹${document.getElementById('grandTotal').textContent}`;
-    
+    let grandTotal = parseInt(document.getElementById('grandTotal').textContent);
+
+    if(items.length === 0){
+        showMessage('Please select at least one item.');
+        return;
+    }
+
+    // Send order to server
+    try {
+        const response = await fetch('/order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ customerNumber, items, grandTotal })
+        });
+
+        if(response.ok){
+            showMessage('Order saved! Sending WhatsApp...');
+            const adminNumber = '917600361112'; // your admin number
+            let message = `Order from ${customerNumber}:%0A`;
+            items.forEach(item => {
+                message += `${item.name} - ${item.quantity} x ₹${item.price} = ₹${item.quantity * item.price}%0A`;
+            });
+            message += `Grand Total: ₹${grandTotal}`;
+            window.open(`https://wa.me/${adminNumber}?text=${message}`, '_blank');
+        } else {
+            showMessage('Failed to save order.');
+        }
+    } catch (err) {
+        console.error(err);
+        showMessage('Error saving order.');
+    }
+
     document.getElementById('popupOverlay').style.display = 'none';
-    window.open(`https://wa.me/${adminNumber}?text=${message}`, '_blank');
 }
+
 
 updateTotal(); // initial call
 </script>
